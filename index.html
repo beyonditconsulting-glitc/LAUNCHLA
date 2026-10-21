@@ -227,7 +227,7 @@ function bindPreviews(){
  document.querySelectorAll('.resource-link,.pin-card>a').forEach(link=>{
  const id=link.closest('[data-resource]')?.dataset.resource||link.closest('[data-pin-resource]')?.dataset.pinResource;
  const resource=all().find(r=>r.id===id);if(!resource)return;
- const queue=()=>{clearTimeout(previewTimer);clearTimeout(previewCloseTimer);previewTimer=setTimeout(()=>showPreview(resource,link),350);};
+ const queue=()=>{clearTimeout(previewTimer);clearTimeout(previewCloseTimer);previewTimer=setTimeout(()=>showPreview(resource,link),3000);};
  link.onmouseenter=queue;link.onmouseleave=scheduleHide;link.onfocus=queue;link.onblur=()=>{clearTimeout(previewTimer);scheduleHide();};link.onclick=()=>hidePreview();
  });
  document.querySelectorAll('[data-preview]').forEach(button=>button.onclick=()=>{const r=all().find(r=>r.id===button.dataset.preview);if(r){if(activePreviewId===r.id&&!previewBox.hidden)hidePreview();else showPreview(r,button);}});
