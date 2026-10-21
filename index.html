@@ -174,15 +174,15 @@ function bindPreviews(){
  document.querySelectorAll('.resource-link,.pin-card>a').forEach(link=>{
  const id=link.closest('[data-resource]')?.dataset.resource||link.closest('[data-pin-resource]')?.dataset.pinResource;
  const resource=all().find(r=>r.id===id);if(!resource)return;
- const queue=()=>{clearTimeout(previewTimer);clearTimeout(previewCloseTimer);previewTimer=setTimeout(()=>showPreview(resource,link),600);};
- link.onpointerenter=e=>{if(e.pointerType==='mouse'&&matchMedia('(hover: hover)').matches)queue();};link.onpointerleave=scheduleHide;link.onfocus=queue;link.onblur=()=>{clearTimeout(previewTimer);scheduleHide();};link.onclick=()=>hidePreview();
+ const queue=()=>{clearTimeout(previewTimer);clearTimeout(previewCloseTimer);previewTimer=setTimeout(()=>showPreview(resource,link),350);};
+ link.onmouseenter=queue;link.onmouseleave=scheduleHide;link.onfocus=queue;link.onblur=()=>{clearTimeout(previewTimer);scheduleHide();};link.onclick=()=>hidePreview();
  });
  document.querySelectorAll('[data-preview]').forEach(button=>button.onclick=()=>{const r=all().find(r=>r.id===button.dataset.preview);if(r){if(activePreviewId===r.id&&!previewBox.hidden)hidePreview();else showPreview(r,button);}});
 }
 previewBox.onpointerenter=()=>{clearTimeout(previewCloseTimer);clearTimeout(previewTimer);};previewBox.onpointerleave=scheduleHide;previewBox.onfocusin=()=>clearTimeout(previewCloseTimer);previewBox.onfocusout=scheduleHide;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!previewBox.hidden){const focusWasInside=previewBox.contains(document.activeElement);hidePreview();if(focusWasInside&&previewAnchor?.isConnected){previewAnchor.focus();clearTimeout(previewTimer);}}});
 document.addEventListener('pointerdown',e=>{if(!previewBox.hidden&&!previewBox.contains(e.target)&&!e.target.closest('[data-preview]'))hidePreview();});
-window.addEventListener('resize',positionPreview);window.addEventListener('scroll',hidePreview,{passive:true});
+window.addEventListener('resize',positionPreview);window.addEventListener('scroll',()=>{if(previewBox.hidden)return;const rect=previewAnchor?.getBoundingClientRect();if(!rect||rect.bottom<0||rect.top>innerHeight)hidePreview();else positionPreview();},{passive:true});
 
 $('#toast').hidden=true;
 // Keep the existing storage key and resource IDs so earlier favorites and notes carry forward.
