@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Warehouse · Inventory Lookup</title>
+
+  <style>
+    :root {
+      font-family: Inter, Arial, sans-serif;
+      color: #172e35;
+      background: #f5f6f3;
+      --muted: #687979;
+      --line: #dce3dd;
+      --green: #24634b;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    button, input, select { font: inherit; }
+    button, select { cursor: pointer; }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 8px;
+      padding: 11px 16px;
+      color: inherit;
+      font-weight: 600;
+    }
+
+    button:hover { background: #edf3ee; }
+    button:disabled { opacity: .45; cursor: default; }
+
+    :focus-visible {
+      outline: 3px solid #b9a85d;
+      outline-offset: 3px;
+    }
+
+    .topbar {
+      background: #173c35;
+      color: white;
+      padding: 18px max(24px, calc((100vw - 1200px) / 2));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+
+    .mark {
+      border: 1px solid #ffffff60;
+      border-radius: 9px;
+      padding: 9px;
+      font-size: 20px;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 15px;
+      letter-spacing: .4px;
+    }
+
+    .brand small {
+      display: block;
+      color: #b8cec5;
+      font-size: 11px;
+      margin-top: 5px;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+    }
+
+    .secure { font-size: 12px; color: #d0e0d7; }
+    .wrap { max-width: 1248px; margin: auto; padding: 38px 24px; }
+
+    .breadcrumb {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .intro {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    h1 {
+      font-family: Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(32px, 5vw, 46px);
+      letter-spacing: -1.5px;
+      margin: 10px 0;
+    }
+
+    p { line-height: 1.6; }
+    .intro p { color: var(--muted); font-size: 14px; margin: 0; }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 30px 0;
+    }
+
+    .metric {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .metric small { color: var(--muted); font-size: 12px; }
+
+    .metric strong {
+      display: block;
+      font-size: 28px;
+      font-weight: 500;
+      margin-top: 7px;
+    }
+
+    .symbol {
+      color: #6a8b79;
+      background: #f0f5ef;
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .searchpanel {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 22px;
+    }
+
+    label { font-size: 12px; font-weight: 600; }
+    .searchrow { display: flex; gap: 10px; margin-top: 10px; }
+    .inputwrap { flex: 1; position: relative; }
+
+    .inputwrap span {
+      position: absolute;
+      left: 15px;
+      top: 12px;
+      color: var(--muted);
+      font-size: 20px;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid #cdd8d0;
+      background: #fbfcfa;
+      border-radius: 8px;
+      padding: 13px 40px;
+      font-size: 14px;
+      color: inherit;
+    }
+
+    .primary {
+      background: var(--green);
+      border-color: var(--green);
+      color: white;
+      min-width: 105px;
+    }
+
+    .primary:hover { background: #174d39; }
+    .hint { font-size: 12px; color: var(--muted); margin: 10px 0 0; }
+
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid #edf0eb;
+    }
+
+    .filters button {
+      font-size: 12px;
+      padding: 8px 12px;
+      border-color: transparent;
+      background: #f4f6f2;
+    }
+
+    .filters button[aria-pressed="true"] {
+      background: #e5f0e7;
+      color: #23543f;
+      border-color: #b6cfbd;
+    }
+
+    .sort {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    select {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: white;
+      padding: 8px;
+      color: #28423a;
+    }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 27px 0 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      padding: 21px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .cardhead {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .part {
+      font: 11px ui-monospace, monospace;
+      color: var(--muted);
+      letter-spacing: .3px;
+    }
+
+    .badge {
+      border-radius: 20px;
+      padding: 5px 8px;
+      font-size: 10px;
+      background: #eaf3e9;
+      color: #386e40;
+      white-space: nowrap;
+    }
+
+    .badge.out { color: #9b6240; background: #fbefe3; }
+    .badge.unknown { color: #697575; background: #eff1ef; }
+
+    .name {
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.45;
+      margin: 17px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .availability {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .availability strong {
+      font-size: 34px;
+      letter-spacing: -1px;
+      font-weight: 500;
+    }
+
+    .availability span { font-size: 11px; color: var(--muted); }
+
+    .location {
+      border-top: 1px solid #edf0eb;
+      border-bottom: 1px solid #edf0eb;
+      margin: 16px 0;
+      padding: 13px 0;
+      display: grid;
+      gap: 6px;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .location small {
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .grade { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+
+    .stats small { display: block; font-size: 10px; color: var(--muted); }
+
+    .stats b {
+      display: block;
+      font-size: 13px;
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    .state {
+      padding: 50px 20px;
+      text-align: center;
+      background: white;
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+    }
+
+    .state h2 { font-size: 19px; color: #213c32; }
+
+    .error {
+      background: #fff2e9;
+      color: #8c462b;
+      border: 1px solid #e9c4ac;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+
+    .hidden { display: none !important; }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
+      margin: 28px 0;
+      font-size: 12px;
+    }
+
+    .foot {
+      border-top: 1px solid var(--line);
+      margin-top: 32px;
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .loading { opacity: .55; }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metric { padding: 15px; }
+      .metric .symbol { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .wrap { padding: 24px 16px; }
+      .topbar { padding: 16px; }
+      .secure { display: none; }
+      .intro { align-items: start; }
+      .intro > button { padding: 10px; font-size: 11px; }
+      .summary { gap: 7px; }
+      .metric { padding: 12px; }
+      .metric small { font-size: 10px; }
+      .metric strong { font-size: 23px; }
+      .grid { grid-template-columns: 1fr; }
+      .searchpanel { padding: 16px; }
+      .searchrow { flex-wrap: wrap; }
+      .inputwrap { min-width: 100%; }
+      .searchrow button { flex: 1; }
+      .sort { margin: 5px 0 0; width: 100%; }
+      .meta { align-items: start; flex-wrap: wrap; }
+      .foot { flex-direction: column; }
+      .breadcrumb { margin-bottom: 20px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="mark" aria-hidden="true">▧</span>
+      <div>
+        <strong>LAUSD WAREHOUSE</strong>
+        <small>Instructional resources</small>
+      </div>
+    </div>
+    <span class="secure">● &nbsp; District access only</span>
+  </header>
+
+  <main class="wrap">
+    <div class="breadcrumb">
+      Warehouse resources &nbsp; / &nbsp; Inventory lookup
+    </div>
+
+    <div class="intro">
+      <div>
+        <div class="eyebrow">Resources for your classroom</div>
+        <h1>Find what you need.</h1>
+        <p>
+          Explore warehouse inventory, check availability,
+          and locate your items.
+        </p>
+      </div>
+      <button
+        id="refreshBtn"
+        title="Fetch fresh records from the spreadsheet"
+      >↻ &nbsp; Refresh data</button>
+    </div>
+
+    <section class="summary" aria-label="Inventory overview">
+      <div class="metric">
+        <div>
+          <small>Inventory items</small>
+          <strong id="total">—</strong>
+        </div>
+        <span class="symbol" aria-hidden="true">▧</span>
+      </div>
+
+      <div class="metric">
+        <div>
+          <small>Items in stock</small>
+          <strong id="inStock">—</strong>
+        </div>
+        <span class="symbol" aria-hidden="true">✓</span>
+      </div>
+
+      <div class="metric">
+        <div>
+          <small>Matching your search</small>
+          <strong id="matches">—</strong>
+        </div>
+        <span class="symbol" aria-hidden="true">⌕</span>
+      </div>
+    </section>
+
+    <section class="searchpanel" aria-label="Search and filter inventory">
+      <form id="searchForm">
+        <label for="search">What are you looking for?</label>
+
+        <div class="searchrow">
+          <div class="inputwrap">
+            <span aria-hidden="true">⌕</span>
+            <input
+              id="search"
+              type="search"
+              maxlength="120"
+              autocomplete="off"
+              placeholder="Search item, part number, location, or grade…"
+            >
+          </div>
+
+          <button class="primary" id="searchBtn">Search</button>
+          <button type="button" id="clearBtn">Clear</button>
+        </div>
+      </form>
+
+      <p class="hint">
+        Try “Class VR”, “Artie”, or a part number.
+        Use multiple words to narrow your search.
+      </p>
+
+      <div class="filters" role="group" aria-label="Stock availability">
+        <button data-stock="all" aria-pressed="true">All items</button>
+        <button data-stock="available" aria-pressed="false">In stock</button>
+        <button data-stock="out" aria-pressed="false">Out of stock</button>
+        <button data-stock="unknown" aria-pressed="false">
+          Stock not listed
+        </button>
+
+        <div class="sort">
+          <label for="sort">Sort by</label>
+          <select id="sort">
+            <option value="relevance">Relevance</option>
+            <option value="name">Item name A–Z</option>
+            <option value="stock">Availability: high to low</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="error" class="error hidden" role="alert"></div>
+    </section>
+
+    <div class="meta">
+      <span id="count" role="status">Loading inventory…</span>
+      <span id="updated"></span>
+      <button id="exportBtn" disabled>↓ &nbsp; Export this page</button>
+    </div>
+
+    <div id="loading" class="state">Fetching warehouse inventory…</div>
+
+    <div id="empty" class="state hidden">
+      <h2>No items found</h2>
+      <p>Try fewer words or select “All items” to broaden your search.</p>
+      <button id="resetBtn">Reset search &amp; filters</button>
+    </div>
+
+    <section
+      id="results"
+      class="grid"
+      aria-label="Inventory results"
+      aria-busy="true"
+    ></section>
+
+    <nav id="pagination" class="pagination hidden" aria-label="Result pages">
+      <button id="prev">← Previous</button>
+      <span id="pageLabel"></span>
+      <button id="next">Next →</button>
+    </nav>
+
+    <footer class="foot">
+      <span>
+        LAUSD · Warehouse resources<br>
+        Read-only inventory lookup
+      </span>
+      <span>
+        Availability may change as warehouse records are updated.<br>
+        Use Refresh data to retrieve the latest spreadsheet records.
+      </span>
+    </footer>
+  </main>
+
+  <script>
+    'use strict';
+
+    const $ = id => document.getElementById(id);
+
+    let requestNumber = 0;
+    let timer;
+    let page = 1;
+    let stock = 'all';
+    let current = [];
+    let busy = false;
+
+    const fmt = n => n == null ? '—' : Number(n).toLocaleString();
+
+    function node(tag, value, className) {
+      const element = document.createElement(tag);
+
+      if (className) element.className = className;
+      if (value != null) element.textContent = String(value);
+
+      return element;
+    }
+
+    function card(item) {
+      const root = node('article', null, 'card');
+      const head = node('div', null, 'cardhead');
+
+      const status = item.available == null
+        ? 'Stock not listed'
+        : item.available > 0
+          ? 'In stock'
+          : 'Out of stock';
+
+      const badgeClass = 'badge' + (
+        item.available == null
+          ? ' unknown'
+          : item.available <= 0
+            ? ' out'
+            : ''
+      );
+
+      head.append(
+        node(
+          'span',
+          item.part ? 'PART # ' + item.part : 'PART # Not listed',
+          'part'
+        ),
+        node('span', status, badgeClass)
+      );
+
+      const quantity = node('div', null, 'availability');
+
+      quantity.append(
+        node('strong', fmt(item.available)),
+        node('span', 'units available')
+      );
+
+      const location = node('div', null, 'location');
+
+      location.append(
+        node('small', 'Warehouse location'),
+        node('span', item.locations || 'Not listed')
+      );
+
+      if (item.grade) {
+        location.append(
+          node('span', 'Grade level · ' + item.grade, 'grade')
+        );
+      }
+
+      const stats = node('div', null, 'stats');
+
+      [
+        ['WH stock', item.warehouse],
+        ['Return stock', item.returns],
+        ['Combined', item.combined]
+      ].forEach(([label, value]) => {
+        const stat = node('div');
+        stat.append(node('small', label), node('b', fmt(value)));
+        stats.append(stat);
+      });
+
+      root.append(
+        head,
+        node('h2', item.item, 'name'),
+        quantity,
+        location,
+        stats
+      );
+
+      return root;
+    }
+
+    function setBusy(value) {
+      busy = value;
+
+      ['searchBtn', 'refreshBtn', 'prev', 'next', 'exportBtn']
+        .forEach(id => {
+          $(id).disabled = value;
+        });
+
+      $('exportBtn').disabled = value || !current.length;
+      $('results').setAttribute('aria-busy', String(value));
+      $('results').classList.toggle('loading', value);
+      $('loading').classList.toggle(
+        'hidden',
+        !value || current.length > 0
+      );
+    }
+
+    function run(refresh = false) {
+      clearTimeout(timer);
+
+      const id = ++requestNumber;
+      const query = $('search').value.trim();
+      const options = {
+        page: page,
+        stock: stock,
+        sort: $('sort').value
+      };
+
+      $('error').classList.add('hidden');
+      $('empty').classList.add('hidden');
+      setBusy(true);
+      $('count').textContent = 'Searching inventory…';
+
+      const success = data => {
+        if (id !== requestNumber) return;
+
+        current = data.items;
+        page = data.page;
+
+        setBusy(false);
+
+        $('results').replaceChildren(...current.map(card));
+        $('total').textContent = fmt(data.inventoryTotal);
+        $('inStock').textContent = fmt(data.inStock);
+        $('matches').textContent = fmt(data.total);
+        $('empty').classList.toggle('hidden', data.total > 0);
+
+        const first = (page - 1) * data.pageSize + 1;
+        const last = (page - 1) * data.pageSize + current.length;
+
+        $('count').textContent = data.total
+          ? first + '–' + last + ' of ' +
+            fmt(data.total) + ' matching items'
+          : '0 matching items';
+
+        $('updated').textContent = 'Last checked ' +
+          new Date(data.checkedAt).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+        $('pagination').classList.toggle('hidden', data.pages <= 1);
+        $('pageLabel').textContent = 'Page ' + page + ' of ' + data.pages;
+        $('prev').disabled = page <= 1;
+        $('next').disabled = page >= data.pages;
+      };
+
+      const failure = err => {
+        if (id !== requestNumber) return;
+
+        setBusy(false);
+        $('loading').classList.add('hidden');
+
+        $('count').textContent = current.length
+          ? 'Showing previous results · refresh failed'
+          : 'Inventory unavailable';
+
+        $('error').textContent =
+          ((err && err.message) || 'Unable to load inventory.') +
+          ' Please try Search or Refresh data again.';
+
+        $('error').classList.remove('hidden');
+      };
+
+      if (!window.google || !google.script) {
+        failure({
+          message:
+            'Open this interface from your deployed Google Apps Script ' +
+            'web app to connect to inventory.'
+        });
+        return;
+      }
+
+      const runner = google.script.run
+        .withSuccessHandler(success)
+        .withFailureHandler(failure);
+
+      if (refresh) {
+        runner.refreshInventory(query, options);
+      } else {
+        runner.searchInventory(query, options);
+      }
+    }
+
+    function syncFilters() {
+      document.querySelectorAll('[data-stock]').forEach(button => {
+        button.setAttribute(
+          'aria-pressed',
+          String(button.dataset.stock === stock)
+        );
+      });
+    }
+
+    function reset() {
+      clearTimeout(timer);
+      $('search').value = '';
+      stock = 'all';
+      page = 1;
+      $('sort').value = 'relevance';
+      syncFilters();
+      run();
+    }
+
+    $('searchForm').addEventListener('submit', event => {
+      event.preventDefault();
+      page = 1;
+      run();
+    });
+
+    $('search').addEventListener('input', () => {
+      clearTimeout(timer);
+      ++requestNumber;
+      page = 1;
+      timer = setTimeout(() => run(), 350);
+    });
+
+    $('clearBtn').onclick = () => {
+      $('search').value = '';
+      page = 1;
+      run();
+      $('search').focus();
+    };
+
+    $('resetBtn').onclick = reset;
+    $('refreshBtn').onclick = () => run(true);
+
+    $('sort').onchange = () => {
+      page = 1;
+      run();
+    };
+
+    document.querySelectorAll('[data-stock]').forEach(button => {
+      button.onclick = () => {
+        stock = button.dataset.stock;
+        page = 1;
+        syncFilters();
+        run();
+      };
+    });
+
+    $('prev').onclick = () => {
+      if (!busy && page > 1) {
+        page--;
+        run();
+      }
+    };
+
+    $('next').onclick = () => {
+      if (!busy) {
+        page++;
+        run();
+      }
+    };
+
+    $('exportBtn').onclick = () => {
+      const fields = [
+        'part',
+        'item',
+        'available',
+        'locations',
+        'grade',
+        'warehouse',
+        'returns',
+        'combined'
+      ];
+
+      const escape = value => '"' +
+        String(value == null ? '' : value)
+          .replace(/^[\t\r =+@-]/, match => "'" + match)
+          .replace(/"/g, '""') +
+        '"';
+
+      const csv = [
+        fields,
+        ...current.map(record => fields.map(field => record[field]))
+      ].map(row => row.map(escape).join(',')).join('\r\n');
+
+      const url = URL.createObjectURL(
+        new Blob(['\uFEFF' + csv], {
+          type: 'text/csv;charset=utf-8;'
+        })
+      );
+
+      const link = node('a');
+      link.href = url;
+      link.download = 'warehouse-inventory-page-' + page + '.csv';
+      link.click();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    };
+
+    run();
+  </script>
+</body>
+</html>
