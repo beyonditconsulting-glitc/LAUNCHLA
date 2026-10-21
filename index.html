@@ -152,7 +152,7 @@ function previewUrl(resource){
  const u=new URL(resource.url);let m;
  if(u.hostname==='docs.google.com'&&(m=u.pathname.match(/^\/(spreadsheets|document|presentation)\/d\/([A-Za-z0-9_-]+)/))){
  const base='https://docs.google.com/'+m[1]+'/d/'+m[2];
- if(m[1]==='spreadsheets'){const gid=u.searchParams.get('gid')||new URLSearchParams(u.hash.slice(1)).get('gid');return base+'/preview'+(gid?'?gid='+encodeURIComponent(gid):'');}
+ if(m[1]==='spreadsheets'){const gid=new URLSearchParams(u.hash.slice(1)).get('gid')||u.searchParams.get('gid');const tab=gid!==null?encodeURIComponent(gid):null;return base+'/preview'+(tab!==null?'?gid='+tab+'#gid='+tab:'');}
  return base+(m[1]==='presentation'?'/embed':'/preview');
  }
  if(u.hostname==='drive.google.com'&&(m=u.pathname.match(/^\/file\/d\/([A-Za-z0-9_-]+)/)))return 'https://drive.google.com/file/d/'+m[1]+'/preview';
