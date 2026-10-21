@@ -1,9 +1,9 @@
 /** Read-only inventory connection. This script never changes the source spreadsheet. */
 const INVENTORY_SPREADSHEET_ID = '1jWrPNLyDg8dGBs95ru5GiwIWovEMeAME-10kKH09odg';
 const INVENTORY_SHEET_ID = 0;
-function doGet() {
-  return HtmlService.createHtmlOutputFromFile('OrderBuilder')
-    .setTitle('Launch LA Order Builder');
+function doGet(e) {
+  return HtmlService.createHtmlOutputFromFile(e && e.parameter && e.parameter.app === 'schools' ? 'SchoolPlanner' : 'OrderBuilder')
+    .setTitle(e && e.parameter && e.parameter.app === 'schools' ? 'Launch LA School Bundle Planner' : 'Launch LA Order Builder');
 }
 function getInventory() {
   const book = SpreadsheetApp.openById(INVENTORY_SPREADSHEET_ID);

@@ -51,3 +51,7 @@ The draft is not an approval, reservation, stock deduction, availability guarant
 - Stock mapping, blank versus zero, invalid values, duplicate/header safeguards, and formula-safe CSV output.
 - Browser flow using the supplied inventory: search, order quantities, two-recipient multiplication, correct post-bundling arithmetic, VR set conversion, shortages, location export, missing/unknown inventory after refresh, invalid recipients, mobile overflow, and print layout; no browser errors.
 - Apps Script read adapter checked with a mocked Sheets service. Live Google account authorization and deployment remain unverified until performed by the owner.
+
+## Schools with different bundles
+
+Use [SchoolPlanner.html](SchoolPlanner.html) for different bundle assignments by school, school-specific quantity exceptions, consolidated warehouse demand, plan backups, and one-page school packing sheets. See [SCHOOL-PLANNER.md](SCHOOL-PLANNER.md) for setup and confirmed bundle contents.
