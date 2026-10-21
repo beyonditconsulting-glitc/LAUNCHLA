@@ -8,7 +8,7 @@ Read-only draft orders and warehouse picking lists using the Launch LA Inventory
 2. Open the inventory tab in Google Sheets. Use **File → Download → Comma-separated values (.csv)**, which exports the current tab. Alternatively, copy the complete table including headers.
 3. In Order Builder, choose **Import CSV / TSV**, or expand **Paste inventory from the sheet**.
 4. Enter a school/department title, school count, and delivery notes. Search inventory and add quantities **per school**. The builder multiplies them by the recipient count.
-5. Export the draft CSV or print the picking list. Drafts are in memory only; reloading or closing clears them. Export before closing.
+5. Export the draft CSV or print the one-page landscape order summary. The printout shows item quantities, stock totals, shortages/review status, and the first three locations per item. The CSV retains complete locations and review details. Long orders scale down to remain one page; use CSV for readable full detail on large orders. Drafts are in memory only; reloading or closing clears them. Export before closing.
 
 Imports stay in the browser tab. Inventory records are not uploaded, stored in local storage, or bundled into the public website. A publicly hosted copy exposes the application code, not your imported inventory. The linked source spreadsheet retains its existing permissions.
 
