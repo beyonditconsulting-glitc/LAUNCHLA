@@ -183,7 +183,7 @@ function render(){
  $('#resource-list').querySelectorAll('textarea').forEach(t=>t.oninput=()=>{state.notes[t.dataset.id]=t.value;save();});
  }
  bindPreviews();
- document.querySelectorAll('[data-project]').forEach(b=>b.onclick=()=>go(b.dataset.project));
+ document.querySelectorAll('button[data-project]').forEach(b=>b.onclick=()=>go(b.dataset.project));
 }
 function togglePin(id){state.favorites=state.favorites.includes(id)?state.favorites.filter(x=>x!==id):[...state.favorites,id];save();renderPins();}
 function renderPins(){const pins=state.favorites.map(id=>all().find(r=>r.id===id)).filter(Boolean);$('#pins').innerHTML=pins.length?pins.map(r=>`<div class="pin-card" data-pin-resource="${esc(r.id)}"><a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.title)}</a><button data-unpin="${esc(r.id)}" aria-label="Unpin ${esc(r.title)}">×</button><button class="preview-button" data-preview="${esc(r.id)}" aria-label="Preview ${esc(r.title)}" aria-controls="preview-box">Preview</button></div>`).join(''):'<div class="pin-empty"><strong>Your most-used links belong here.</strong><br>Choose your shortcuts, or pin a document from any project.</div>';$('#pins').querySelectorAll('[data-unpin]').forEach(b=>b.onclick=()=>togglePin(b.dataset.unpin));bindPreviews();}
