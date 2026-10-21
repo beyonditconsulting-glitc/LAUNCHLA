@@ -29,3 +29,7 @@ To update an existing deployment, use Deploy → Manage deployments → Edit →
 ## Validation
 
 The server was tested with mocked Google services against the supplied table structure: lookup rendering, planner rendering, the configured spreadsheet and gid=0 selection, 121-item inventory responses, search, pagination, refresh, and denial of non-district/unverified email identities for both data routes. The planner's import, assignments, calculations, backups, and one-page reports were tested separately. Live Google authorization, domain access, and deployment have not been executed from this environment.
+
+## Updated printing
+
+The complete SchoolPlanner.html includes **Print one-page report** for the compact summary and **Print warehouse report** for item-by-item school picking lists. Replace the entire contents of the existing SchoolPlanner.html with the supplied file, save, then update the planner deployment to **New version**. No Code.gs or index.html changes are needed for this printing update.

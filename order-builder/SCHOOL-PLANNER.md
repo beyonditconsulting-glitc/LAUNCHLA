@@ -67,3 +67,12 @@ See `README.md` for initial Apps Script deployment steps. No live Google account
 Public code contains bundle recipes and the source spreadsheet ID, but no imported inventory values or school roster. Imports and assignments stay in the browser tab; backups and CSVs contain work data and should be kept in approved storage. No automatic browser storage or server upload is used in standalone mode.
 
 Browser tests used the supplied 64-school roster and 121-item inventory locally. They covered exact bundle counts and 12-line demand, a school assigned both bundles, one VR 8-pack per selected school, shortages, school exceptions, exclusion, template edits, search filters, plan backup/restore, CSV allocations, and mobile layout. Actual school and warehouse PDFs were verified as one page. Live Google authorization/deployment remains unverified.
+
+## Item-by-item warehouse picking report
+
+- **Print one-page report** retains the compact consolidated summary.
+- **Print warehouse report** creates an item-by-item picking packet. Each item starts on a new portrait page; long school lists continue rather than being clipped or shrunk to unreadable text.
+- Each item lists its part number, requested total, stock totals, full candidate locations, shortage/review notes, and every included receiving school with its location code and exact quantity. Schools are sorted alphabetically within each item.
+- Columns for **Picked this pallet**, **Remaining**, and **Complete** support working through one pallet/item at a time. Pallet/batch and picker fields are provided. These are paper tracking fields, not persisted digital fulfillment records; carry previous picks forward when changing pallets or printing a new copy.
+- School exclusions and per-school quantity overrides are respected. A zero quantity omits the school from that item's picking list.
+- Verified with the supplied roster: 12 item sections and all 326 school-item allocations; 12 portrait PDF pages, plus a separate one-page landscape summary. Actual pagination can vary with current school names, source notes, locations, printer settings, and paper size.
