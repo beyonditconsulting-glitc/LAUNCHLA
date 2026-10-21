@@ -27,3 +27,11 @@ Personal changes stay in this browser and origin. Export a backup before changin
 ## Validation
 
 Run `node --check app.js` and `node --check data.js`. Browser smoke tests cover project filtering, search, favorites and persistence, notes, resource creation, review, and export/import. No external document authentication is required to use the dashboard itself.
+
+## Mobile access with GitHub Pages
+
+In the repository's **Settings → Pages**, choose **Deploy from a branch**, select **main** and **/ (root)**, then **Save**. Leave repository visibility unchanged; if GitHub reports that Pages needs a paid plan for this repository, resolve that in GitHub before proceeding.
+
+GitHub will show the live site address after deployment. The expected project address is `https://beyonditconsulting-glitc.github.io/LAUNCHLA/`; it is not live until GitHub Pages is enabled and deployment succeeds. Open the published address on your phone. On iPhone, use Safari's **Share → Add to Home Screen**. On Android, use Chrome's menu → **Add to Home screen**.
+
+The website includes work resource names and document links. Document permissions remain controlled by Google and Microsoft. Browser-local favorites, notes, and added links do not automatically sync between phone and computer; use backup export/import to transfer them.
