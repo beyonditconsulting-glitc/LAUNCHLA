@@ -27,6 +27,18 @@
 .related button,.pin-toggle{font-size:13px}
 .autosave{font-size:12px;color:#5c7480}
 @media(max-width:600px){#subtitle{font-size:15px}.group h3{font-size:13px;padding:12px 13px}.resource-top{padding:0 12px;gap:5px}.resource-link{font-size:16px;padding:17px 0;gap:8px}.resource-description{font-size:14px}.preview-button{font-size:12px;padding:10px 5px}.resource-menu summary{width:36px;height:44px}.resource-details{margin:0 12px}.detail-actions{flex-wrap:wrap;gap:10px}.detail-actions span{overflow-wrap:anywhere}.resource-details textarea{font-size:16px}.result-context{font-size:12px}}
+
+/* Expandable sections with indented resource rows. */
+.resource-section{margin-bottom:22px}
+.resource-section>summary{display:flex;align-items:center;gap:11px;padding:14px 16px;min-height:52px;background:#e5f0f5;border-left:4px solid #568899;border-radius:0 8px 8px 0;color:#274f5b}
+.resource-section:nth-child(even)>summary{background:#e8f1ee;border-left-color:#59877c;color:#315b51}
+.resource-section>summary:hover{filter:brightness(.98)}
+.resource-section>summary h3,.resource-section:nth-child(even)>summary h3{font-size:14px;font-weight:700;letter-spacing:.6px;line-height:1.5;padding:0;margin:0;background:none;border:0;border-radius:0;color:inherit}
+.section-chevron{font-size:24px;line-height:1;transition:transform .15s;flex-shrink:0}
+.resource-section[open]>summary .section-chevron{transform:rotate(90deg)}
+.section-count{margin-left:auto;font-size:12px;font-weight:500;background:#ffffff99;border-radius:5px;padding:3px 8px}
+.section-content{margin:14px 0 0 23px;padding-left:16px;border-left:2px solid #d2e3e8}
+@media(max-width:600px){.resource-section>summary{padding:13px 12px;gap:9px}.resource-section>summary h3{font-size:13px}.section-content{margin-left:9px;padding-left:9px}.resource-section .resource-top{padding:0 9px;gap:3px}}
 </style></head><body>
 <header><button class="brand" id="home">mywork <span>(mag8389)</span></button><details id="settings"><summary aria-label="Settings">⚙ <span>Settings</span></summary><div class="settings-menu"><button id="add">Add a resource</button><button id="review">Review duplicate links</button><button id="export">Export backup</button><button id="import">Import backup</button><p>Pins and notes stay in this browser. Export a backup to move them.</p></div></details><input id="import-file" type="file" accept="application/json" hidden></header>
 <main><button id="back" class="back" hidden>← mywork (mag8389)</button><div class="intro"><p class="eyebrow" id="eyebrow">YOUR WORK, A LITTLE CLEARER</p><h1 id="title">Personalized Project Management</h1><p id="subtitle">Pick a project. Find what you need. Get on with your day.</p></div><div class="search-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="search" type="search" placeholder="Search all projects and documents" aria-label="Search all projects and documents"><kbd>/</kbd></div><div id="home-content"><section class="pinned-section"><div class="section-head"><h2>Pinned</h2><button id="choose-pins" class="text-button">Choose your shortcuts</button></div><div id="pins"></div></section><section><div class="section-head"><h2>Projects</h2><span>Choose a space to get started</span></div><div id="main-projects" class="project-grid"></div></section></div><section id="results" hidden><div class="section-head"><h2 id="results-heading">Documents</h2><button id="clear-search" class="text-button" hidden>Clear search</button></div><div id="resource-list"></div></section><footer>Made for your workday. Your documents stay in their original homes.</footer></main>
@@ -118,6 +130,7 @@ const storageKey='workroom-v1';
 let state={favorites:[],notes:{},custom:[]};
 try{const stored=JSON.parse(localStorage.getItem(storageKey));if(stored)state=validate(stored);}catch{ /* A malformed backup must not prevent access to the built-in library. */ }
 let view='home',query='',pinPicker=false;
+const sectionStates=new Map();
 function validUrl(url){try{return new URL(url).protocol==='https:';}catch{return false;}}
 function validate(s){
  if(!s||!Array.isArray(s.favorites)||!s.notes||typeof s.notes!=='object'||Array.isArray(s.notes)||!Array.isArray(s.custom))throw Error('Invalid backup format.');
@@ -149,7 +162,8 @@ function render(){
  if(searching){const words=query.toLocaleLowerCase().trim().split(/\s+/);list=list.filter(r=>words.every(w=>[r.title,r.category,r.note,r.flag,state.notes[r.id],...r.projects.map(projectName)].join(' ').toLocaleLowerCase().includes(w)));}
  $('#results-heading').textContent=searching?`${list.length} ${list.length===1?'result':'results'}`:view==='review'?'Links to review':pinPicker?'Choose from your documents':'Documents';
  const groups=new Map();for(const r of list){let key=searching?'Search results':pinPicker?projectName(r.projects[0]):groupName(r);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r);}
- $('#resource-list').innerHTML=list.length?[...groups].map(([name,rs])=>`<div class="group">${searching?'':`<h3>${esc(name)}</h3>`}${rs.map(r=>resourceRow(r,searching||pinPicker)).join('')}</div>`).join(''):'<div class="empty"><strong>No matching documents.</strong>Try a different name, project, or keyword.</div>';
+ $('#resource-list').innerHTML=list.length?[...groups].map(([name,rs],i)=>{const key=JSON.stringify([view,pinPicker,name]);return searching?`<div class="group">${rs.map(r=>resourceRow(r,true)).join('')}</div>`:`<details class="group resource-section" data-section-key="${esc(key)}" ${sectionStates.get(key)===false?'':'open'}><summary aria-controls="section-content-${i}"><span class="section-chevron" aria-hidden="true">›</span><h3>${esc(name)}</h3><span class="section-count">${rs.length}</span></summary><div class="section-content" id="section-content-${i}">${rs.map(r=>resourceRow(r,pinPicker)).join('')}</div></details>`;}).join(''):'<div class="empty"><strong>No matching documents.</strong>Try a different name, project, or keyword.</div>';
+ $('#resource-list').querySelectorAll('.resource-section').forEach(d=>d.ontoggle=()=>{sectionStates.set(d.dataset.sectionKey,d.open);if(!d.open&&!previewBox.hidden&&d.contains(previewAnchor))hidePreview();});
  $('#resource-list').querySelectorAll('.resource-menu').forEach(d=>d.ontoggle=()=>{d.closest('.resource').querySelector('.resource-details').hidden=!d.open;});
  $('#resource-list').querySelectorAll('.pin-toggle').forEach(b=>b.onclick=()=>{togglePin(b.dataset.id);const pinned=state.favorites.includes(b.dataset.id);b.textContent=pinned?'Unpin shortcut':'Pin to home';b.setAttribute('aria-pressed',String(pinned));notify(pinned?'Pinned to your home screen.':'Shortcut unpinned.');});
  $('#resource-list').querySelectorAll('textarea').forEach(t=>t.oninput=()=>{state.notes[t.dataset.id]=t.value;save();});
