@@ -16,13 +16,16 @@ No install or build is needed. The optional Google Fonts stylesheet has system f
 - Ten project spaces, searchable resources, category filters, alphabetical sorting.
 - Shared resources belong to multiple projects without duplicating the destination.
 - Favorites, personal notes, and new resources saved in browser local storage.
-- Export/import backups of personal changes. Import merges favorites and resources; incoming notes replace notes with the same ID. Built-in resources are always loaded from `data.js`.
+- Use **Manage** on a resource to uncheck project assignments, change or clear its reference type, or remove the resource everywhere. Keep at least one project when saving assignments. Removal affects dashboard links in this browser; original documents are kept. Export backups include these changes.
+- Export/import backups of personal changes. Import merges favorites and resources; incoming notes and resource edits replace entries with the same ID; removals are merged. Built-in resources are always loaded from `data.js`.
 - Link review identifies two pairs of supplied labels with the same spreadsheet tab.
 - Mobile layout and keyboard-accessible controls; `/` focuses search.
 
 Resource titles, URLs, and initial project memberships come from the supplied list. Additional cross-project tags connect clearly named ELOP warehouse resources, bulk transfers, the ELOP scanner, the warehouse lookup app, and EdTech inventory analysis to their related projects; these are navigation groupings, not verified data integrations. Exact repeated destinations were consolidated; distinct spreadsheet tabs remain separate. Expiring session parameters were removed from SharePoint links while preserving document IDs and selected cells. Project names were shortened for navigation. No document contents have been read, no access has been verified, and no live inventory, deadlines, or progress is inferred. Google and Microsoft permissions still apply when opening links. Some source URLs open form editors, as supplied.
 
 Personal changes stay in this browser and origin. Export a backup before changing computers, browsers, or server ports. This is a personal dashboard, not a synchronized multi-user service. Treat backups as internal work information. To update built-in links or memberships, edit `data.js`; a shared deployment should use your organization's approved internal hosting.
+
+Use **＋ Reference type** to create a type before adding any resource. It appears immediately in the filter, Add resource, and Manage menus, persists even when unused, and is included in exported backups. Duplicate names are checked without regard to capitalization or repeated spaces.
 
 ## Validation
 
